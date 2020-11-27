@@ -27,4 +27,6 @@ public class Droid11 extends TeamRobot implements Droid{
 	public void onDeath(DeathEvent e) {
 		out.println("I died");//test
 	}
+	
+	//nonomuratest
 }
