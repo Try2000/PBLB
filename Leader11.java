@@ -26,6 +26,7 @@ public class Leader11 extends TeamRobot {
 	double midpointstrength = 0;
 	int midpointcount = 0;
 	boolean haveTarget = false;
+	final int INF=100000100;
 
 	public void run() {
 		// use hashtable
@@ -42,14 +43,20 @@ public class Leader11 extends TeamRobot {
 		setColors();
 
 		int frame = 0;
+		doScanner();
 		while (true) {
-			antiGravMove();
-			doScanner();
-			execute();
 			if (!haveTarget) {
 				target = getNextTarget();
-
+				haveTarget=true;
 			}
+			antiGravMove();
+			doScanner();
+			doFirePower();
+			doGun();
+			out.println("target is"+ target.name);
+			if(haveTarget)fire(firePower);
+			execute();
+
 			/* frame??
 			if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
 				this.setTurnRadarRight(45);
@@ -82,7 +89,18 @@ public class Leader11 extends TeamRobot {
 	}
 
 	public Enemy getNextTarget() {
-		Enemy en =new Enemy();
+		Enemy en;
+		en=new Enemy();
+		en.distance=INF;
+		Enumeration e = targets.elements();
+		while(e.hasMoreElements()) {
+			Enemy tmp=(Enemy)e.nextElement();
+			if(tmp.live) {
+				if(tmp.distance<en.distance) {
+					en=tmp;
+				}
+			}
+		}
 		return en;
 	}
 
@@ -151,6 +169,20 @@ public class Leader11 extends TeamRobot {
 
 	void doScanner() {
 		setTurnRadarLeftRadians(2 * PI);
+	}
+	void doFirePower() {
+		firePower = 400/target.distance;//selects a bullet power based on our distance away from the target
+		if (firePower > 3) {
+			firePower = 3;
+		}
+	}
+	void doGun() {
+		long time = getTime() + (int)Math.round((getRange(getX(),getY(),target.x,target.y)/(20-(3*firePower))));
+		Point2D.Double p = target.guessPosition(time);
+
+		//offsets the gun by the angle to the next shot based on linear targeting provided by the enemy class
+		double gunOffset = getGunHeadingRadians() - (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
+		setTurnGunLeftRadians(normaliseBearing(gunOffset));
 	}
 
 	double normaliseBearing(double ang) {
@@ -227,10 +259,21 @@ public class Leader11 extends TeamRobot {
 		en.speed = e.getVelocity();
 		en.distance = e.getDistance();
 		en.live = true;
+		/*
 		if ((en.distance < target.distance) || (target.live == false)) {
 			target = en;
 		}
+		*/
 	}
+	public void onRobotDeath(RobotDeathEvent e) {
+		Enemy en = (Enemy)targets.get(e.getName());
+		en.live = false;
+
+		if(e.getName()==target.name) {
+			haveTarget=false;
+		}
+	}
+
 }
 
 // defintion of new class (enemy and gravpoint)
@@ -240,7 +283,7 @@ class Enemy {
 	public double bearing, heading, speed, x, y, distance, changehead;
 	public long ctime;
 	public boolean live;
-	/* 線形予測(一応)
+
 	public Point2D.Double guessPosition(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
@@ -248,7 +291,7 @@ class Enemy {
 
 		return new Point2D.Double(newX, newY);
 	}
-	*/
+
 }
 
 class GravPoint {
