@@ -18,9 +18,13 @@ public class Droid11 extends TeamRobot implements Droid{
 
 			setBodyColor(c.bodyColor);
 			setGunColor(c.gunColor);
-			setRadarColor(c.radarColor);//don't have
-			setScanColor(c.scanColor);//don't have
+			setRadarColor(c.radarColor);//unnecessary
+			setScanColor(c.scanColor);//unnecessary
 			setBulletColor(c.bulletColor);
+		}else if(e.getMessage() instanceof LeaderInfo) {
+			LeaderInfo l = (LeaderInfo) e.getMessage();
+			
+			out.println("LeaderX:" + l.getX() + ", LeaderY:" + l.getY());//test
 		}
 	}
 
@@ -28,5 +32,4 @@ public class Droid11 extends TeamRobot implements Droid{
 		out.println("I died");//test
 		out.println("This change form eclipse!!");
 	}
-	//testestestes
 }
