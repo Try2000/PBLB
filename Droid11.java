@@ -15,7 +15,7 @@ public class Droid11 extends TeamRobot implements Droid{
 	public void onMessageReceived(MessageEvent e) {
 		if (e.getMessage() instanceof RobotColors) {
 			RobotColors c = (RobotColors) e.getMessage();
-			
+
 			setBodyColor(c.bodyColor);
 			setGunColor(c.gunColor);
 			setRadarColor(c.radarColor);//don't have
@@ -23,9 +23,10 @@ public class Droid11 extends TeamRobot implements Droid{
 			setBulletColor(c.bulletColor);
 		}
 	}
-	
+
 	public void onDeath(DeathEvent e) {
 		out.println("I died");//test
+		out.println("This change form eclipse!!");
 	}
 	//testestestes
 }
