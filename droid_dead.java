@@ -1,7 +1,7 @@
 import robocode.*;
 
 
-public class droid extends Robot{
+public class droid_dead extends Robot{
 
 	int others;
 	public void onDeath(DeathEvent e){
