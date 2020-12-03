@@ -9,8 +9,9 @@ import java.util.LinkedList;
 import java.io.IOException;
 
 public class Leader11 extends TeamRobot {
+	//informations
 	LinkedList<String> enemyName = new LinkedList<String>();
-	LinkedList<EnemyInfo> enemyInfo = new LinkedList<EnemyInfo>();
+	LinkedList<EnemyInfo> enemyList = new LinkedList<EnemyInfo>();
 	
 	public void run() {
 		//set color
@@ -26,6 +27,10 @@ public class Leader11 extends TeamRobot {
 			out.println("RobotColors class was ignored");
 		}
 		
+		//information of leader
+		LeaderInfo leaderInfo = new LeaderInfo(this);
+		
+		//for swinging head
 		int frame = 0;
 		while(true) {
 			//swing head for search
@@ -40,6 +45,15 @@ public class Leader11 extends TeamRobot {
 			}
 			frame = (frame + 1) % 12;
 			
+			//broadcast information of leader
+			leaderInfo.update(this);
+			try {
+				broadcastMessage(leaderInfo);
+			}catch(IOException ignored) {
+				out.println("LeaderInfo class was ignored");
+			}
+			
+			out.println("LeaderX:" + this.getX() + ", LeaderY:" + this.getY());//test
 			out.println(Arrays.toString(this.getTeammates()));//test
 		}
 	}
@@ -59,18 +73,21 @@ public class Leader11 extends TeamRobot {
 			int index = enemyName.indexOf(e.getName());
 			if(-1 == index) {//if list doesn't have data of that robot
 				enemyName.add(e.getName());//add to list
-				enemyInfo.add(new EnemyInfo(e, this));//add to list
+				enemyList.add(new EnemyInfo(e, this));//add to list
 				
 				out.println(enemyName.get(enemyName.indexOf(e.getName())));//test
 			}else {
-				enemyInfo.get(index).update(e, this);
+				enemyList.get(index).update(e, this);
 				
 				//broadcast to Droid
 				
-				out.println("name:" + enemyName.get(index) + " x:" + enemyInfo.get(index).getX()
-						+ ", y:" + enemyInfo.get(index).getY());//test
+				out.println("name:" + enemyName.get(index) + " x:" + enemyList.get(index).getX()
+						+ ", y:" + enemyList.get(index).getY());//test
 			}
 			
 		}
 	}
+	
+	//remove the data of dead enemy
+	
 }
