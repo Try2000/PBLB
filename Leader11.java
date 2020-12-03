@@ -27,6 +27,7 @@ public class Leader11 extends TeamRobot {
 	int midpointcount = 0;
 	boolean haveTarget = false;
 	final int INF=100000100;
+	int teamMateCount=2;
 
 	public void run() {
 		// use hashtable
@@ -54,7 +55,7 @@ public class Leader11 extends TeamRobot {
 			doFirePower();
 			doGun();
 			out.println("target is"+ target.name);
-			if(haveTarget)fire(firePower);
+			if(teamMateCount==0)fire(firePower);
 			execute();
 
 			/* frame??
@@ -271,6 +272,9 @@ public class Leader11 extends TeamRobot {
 
 		if(e.getName()==target.name) {
 			haveTarget=false;
+		}
+		if (e.getName().equals("testTeam.Droid11* (2)") || e.getName().equals("testTeam.Droid11* (3)")) {
+			--teamMateCount;
 		}
 	}
 
