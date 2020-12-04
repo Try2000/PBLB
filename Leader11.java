@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.io.IOException;
 
 public class Leader11 extends TeamRobot {
-	LinkedList<EnemyInfo> enemyInfo = new LinkedList<EnemyInfo>();
 
 	// for antiGravMove
 	Hashtable targets;
@@ -25,7 +24,7 @@ public class Leader11 extends TeamRobot {
 	double firePower;
 	double midpointstrength = 0;
 	int midpointcount = 0;
-	boolean haveTarget = false;
+	//boolean haveTarget = false;
 	final int INF=100000100;
 	int teamMateCount=2;
 
@@ -43,13 +42,15 @@ public class Leader11 extends TeamRobot {
 		//set color
 		setColors();
 
-		int frame = 0;
+		//int frame = 0;
 		doScanner();
 		while (true) {
+			/*
 			if (!haveTarget) {
 				target = getNextTarget();
 				haveTarget=true;
 			}
+			*/
 			antiGravMove();
 			doScanner();
 			doFirePower();
@@ -88,7 +89,7 @@ public class Leader11 extends TeamRobot {
 		}
 
 	}
-
+/*
 	public Enemy getNextTarget() {
 		Enemy en;
 		en=new Enemy();
@@ -104,7 +105,7 @@ public class Leader11 extends TeamRobot {
 		}
 		return en;
 	}
-
+*/
 	void antiGravMove() {
 		double xforce = 0;
 		double yforce = 0;
@@ -254,25 +255,35 @@ public class Leader11 extends TeamRobot {
 		en.changehead = h;
 		en.x = getX() + Math.sin(absbearing_rad) * e.getDistance();
 		en.y = getY() + Math.cos(absbearing_rad) * e.getDistance();
+		if(en.name==target.name) {
+			try{
+				//this code should be changed. uncompleted!!!
+				broadcastMessage(new TargetPoint(en.x,en.y,en.name));
+			}catch(IOException ex) {
+				out.println("missed sending a message");
+			}
+		}
 		en.bearing = e.getBearingRadians();
 		en.heading = e.getHeadingRadians();
 		en.ctime = getTime();
 		en.speed = e.getVelocity();
 		en.distance = e.getDistance();
 		en.live = true;
-		/*
+
 		if ((en.distance < target.distance) || (target.live == false)) {
 			target = en;
 		}
-		*/
+
 	}
 	public void onRobotDeath(RobotDeathEvent e) {
 		Enemy en = (Enemy)targets.get(e.getName());
 		en.live = false;
-
+		/*if use one attack method , you should use this code.
 		if(e.getName()==target.name) {
 			haveTarget=false;
 		}
+		*/
+
 		if (e.getName().equals("testTeam.Droid11* (2)") || e.getName().equals("testTeam.Droid11* (3)")) {
 			--teamMateCount;
 		}
@@ -307,3 +318,5 @@ class GravPoint {
 		power = pPower;
 	}
 }
+
+
