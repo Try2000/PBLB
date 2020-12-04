@@ -42,7 +42,6 @@ public class Leader11 extends TeamRobot {
 		//set color
 		setColors();
 
-		//int frame = 0;
 		doScanner();
 		while (true) {
 			/*
@@ -59,18 +58,7 @@ public class Leader11 extends TeamRobot {
 			if(teamMateCount==0)fire(firePower);
 			execute();
 
-			/* frame??
-			if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
-				this.setTurnRadarRight(45);
-				this.setTurnGunRight(20);
-				this.execute();
-			}else if(3 <= frame && frame <= 8) {
-				this.setTurnRadarLeft(45);
-				this.setTurnGunLeft(20);
-				this.execute();
-			}
-			frame = (frame + 1) % 12;
-			*/
+
 		}
 	}
 
@@ -170,7 +158,19 @@ public class Leader11 extends TeamRobot {
 	}
 
 	void doScanner() {
-		setTurnRadarLeftRadians(2 * PI);
+		//frame??
+		int frame=0;
+		if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
+			this.setTurnRadarRight(45);
+			this.setTurnGunRight(20);
+			this.execute();
+		}else if(3 <= frame && frame <= 8) {
+			this.setTurnRadarLeft(45);
+			this.setTurnGunLeft(20);
+			this.execute();
+		}
+		frame = (frame + 1) % 12;
+
 	}
 	void doFirePower() {
 		firePower = 400/target.distance;//selects a bullet power based on our distance away from the target
