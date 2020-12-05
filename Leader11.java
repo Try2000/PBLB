@@ -1,21 +1,21 @@
 package testTeam;
 
-import robocode.*;
-
-// matsu import
-import java.awt.Color;
-import java.awt.geom.*;
-import java.util.*;
-//
-
-import java.util.Arrays;
-import java.util.LinkedList;
-
+import java.awt.geom.Point2D;
 //import java.awt.Color;
 import java.io.IOException;
+//
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Random;
+
+import robocode.RobotDeathEvent;
+import robocode.ScannedRobotEvent;
+import robocode.TeamRobot;
 
 public class Leader11 extends TeamRobot {
-
+	LinkedList<EnemyInfo> enemyInfo = new LinkedList<EnemyInfo>();
+	private LeaderInfo leaderinfo;
 	// for antiGravMove
 	Hashtable targets;
 	Enemy target;
@@ -24,14 +24,14 @@ public class Leader11 extends TeamRobot {
 	double firePower;
 	double midpointstrength = 0;
 	int midpointcount = 0;
-	//boolean haveTarget = false;
+	boolean haveTarget = false;
 	final int INF=100000100;
 	int teamMateCount=2;
 
 	public void run() {
 		// use hashtable
 		targets = new Hashtable();
-
+		leaderinfo = new LeaderInfo(this,0,0);
 		// use Enemy class
 		target = new Enemy();
 		target.distance = 100000;
@@ -42,15 +42,19 @@ public class Leader11 extends TeamRobot {
 		//set color
 		setColors();
 
+		int frame = 0;
 		doScanner();
 		while (true) {
-			/*
 			if (!haveTarget) {
 				target = getNextTarget();
 				haveTarget=true;
 			}
-			*/
 			antiGravMove();
+			try {
+				broadcastMessage(leaderinfo);
+			} catch (IOException ignored) {
+				out.println("RobotColors class was ignored");
+			}
 			doScanner();
 			doFirePower();
 			doGun();
@@ -58,7 +62,18 @@ public class Leader11 extends TeamRobot {
 			if(teamMateCount==0)fire(firePower);
 			execute();
 
-
+			/* frame??
+			if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
+				this.setTurnRadarRight(45);
+				this.setTurnGunRight(20);
+				this.execute();
+			}else if(3 <= frame && frame <= 8) {
+				this.setTurnRadarLeft(45);
+				this.setTurnGunLeft(20);
+				this.execute();
+			}
+			frame = (frame + 1) % 12;
+			*/
 		}
 	}
 
@@ -77,7 +92,7 @@ public class Leader11 extends TeamRobot {
 		}
 
 	}
-/*
+
 	public Enemy getNextTarget() {
 		Enemy en;
 		en=new Enemy();
@@ -93,7 +108,7 @@ public class Leader11 extends TeamRobot {
 		}
 		return en;
 	}
-*/
+
 	void antiGravMove() {
 		double xforce = 0;
 		double yforce = 0;
@@ -130,8 +145,8 @@ public class Leader11 extends TeamRobot {
 		yforce += 5000 / Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
 		yforce -= 5000 / Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 
+		leaderinfo.update(this, xforce, yforce);
 		goTo(getX() - xforce, getY() - yforce);
-		//ここにleader Infoのブロードキャストを挿入
 	}
 
 	void goTo(double x, double y) {
@@ -159,19 +174,7 @@ public class Leader11 extends TeamRobot {
 	}
 
 	void doScanner() {
-		//frame??
-		int frame=0;
-		if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
-			this.setTurnRadarRight(45);
-			this.setTurnGunRight(20);
-			this.execute();
-		}else if(3 <= frame && frame <= 8) {
-			this.setTurnRadarLeft(45);
-			this.setTurnGunLeft(20);
-			this.execute();
-		}
-		frame = (frame + 1) % 12;
-
+		setTurnRadarLeftRadians(2 * PI);
 	}
 	void doFirePower() {
 		firePower = 400/target.distance;//selects a bullet power based on our distance away from the target
@@ -256,35 +259,25 @@ public class Leader11 extends TeamRobot {
 		en.changehead = h;
 		en.x = getX() + Math.sin(absbearing_rad) * e.getDistance();
 		en.y = getY() + Math.cos(absbearing_rad) * e.getDistance();
-		if(en.name==target.name) {
-			try{
-				//this code should be changed. uncompleted!!!
-				broadcastMessage(new EnemyInfo(en.x,en.y,en.speed,en.bearing));
-			}catch(IOException ex) {
-				out.println("missed sending a message");
-			}
-		}
 		en.bearing = e.getBearingRadians();
 		en.heading = e.getHeadingRadians();
 		en.ctime = getTime();
 		en.speed = e.getVelocity();
 		en.distance = e.getDistance();
 		en.live = true;
-
+		/*
 		if ((en.distance < target.distance) || (target.live == false)) {
 			target = en;
 		}
-
+		*/
 	}
 	public void onRobotDeath(RobotDeathEvent e) {
 		Enemy en = (Enemy)targets.get(e.getName());
 		en.live = false;
-		/*if use one attack method , you should use this code.
+
 		if(e.getName()==target.name) {
 			haveTarget=false;
 		}
-		*/
-
 		if (e.getName().equals("testTeam.Droid11* (2)") || e.getName().equals("testTeam.Droid11* (3)")) {
 			--teamMateCount;
 		}
@@ -319,5 +312,3 @@ class GravPoint {
 		power = pPower;
 	}
 }
-
-
