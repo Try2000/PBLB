@@ -4,6 +4,9 @@ import java.awt.geom.Point2D;
 
 import robocode.*;
 
+import static robocode.util.Utils.*;
+
+
 public class Droid11 extends TeamRobot implements Droid{
 	boolean leaderAlive = true;
 	
@@ -15,12 +18,19 @@ public class Droid11 extends TeamRobot implements Droid{
 	double theta;
 	double turn;
 	double firepower;
-	int rotate = 10000;
-	int go = 10000;
+	//int rotate = 10000;
+	//int go = 10000;
 	/**/
+	
+	public double distancetoleader;
+	public boolean inWall, movingforward;
+	private LeaderInfo leaderinfo;
+	//private EnemyInfo enemyinfo;
+	final double PI = Math.PI;
 	
 	public void run() {
 		/*temporary*/
+		/*
 		if(this.getX() < 250 || this.getX() > this.getBattleFieldWidth() - 250 || this.getY() < 250 || this.getY() > this.getBattleFieldHeight() - 250) {
 			double firstRotate = Math.toDegrees(Math.atan2(this.getBattleFieldWidth()/2 - this.getX(), this.getBattleFieldHeight()/2 - this.getY()));
 			double toCenter = firstRotate - this.getHeading();
@@ -32,14 +42,39 @@ public class Droid11 extends TeamRobot implements Droid{
 			this.turnRight(toCenter);
 			this.ahead(250);
 		}
+		*/
 		/**/
+		
+		if (getX() <= 50 || getY() <= 50 || getBattleFieldWidth() - getX() <= 50
+				|| getBattleFieldHeight() - getY() <= 50) {
+			inWall = true;
+		} else {
+			inWall = false;
+		}
+
+		setAhead(40000); // go ahead until you get commanded to do differently
+		movingforward = true; // we called setAhead, so movingForward is true
 		
 		while (true) {
 			if(leaderAlive) {
 				/*temporary*/
+				/*
 				setAhead(go);
 				setTurnRight(rotate);
+				*/
 				/**/
+				
+				if (getX() > 50 && getY() > 50 && getBattleFieldWidth() - getX() > 50
+						&& getBattleFieldHeight() - getY() > 50 && inWall == true) {
+					inWall = false;
+				}
+				if (getX() <= 50 || getY() <= 50 || getBattleFieldWidth() - getX() <= 50
+						|| getBattleFieldHeight() - getY() <= 50) {
+					if (!inWall) {
+						reverseDirection();
+						inWall = true;
+					}
+				}
 				
 				/*prediction test*/
 				if(firepower > 0) {
@@ -49,7 +84,7 @@ public class Droid11 extends TeamRobot implements Droid{
 					}else if(turn <= -180) {
 						turn += 360;
 					}
-					out.println("turn:" + turn);
+					//out.println("turn:" + turn);//test
 					setTurnGunRight(turn);
 					fire(firepower);
 					//firepower = 0;
@@ -111,6 +146,13 @@ public class Droid11 extends TeamRobot implements Droid{
 			
 			//out.println("LeaderX:" + l.getX() + ", LeaderY:" + l.getY());//test
 			
+			leaderinfo = (LeaderInfo) e.getMessage();
+			//out.println(getleaderbearing(leaderinfo));//test
+			if (movingforward) {
+				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+80));
+			} else {
+				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+100));
+			}
 		}else if(e.getMessage() instanceof EnemyInfo) {
 			EnemyInfo enemy = (EnemyInfo) e.getMessage();
 			/*prediction test*/
@@ -126,8 +168,8 @@ public class Droid11 extends TeamRobot implements Droid{
 			thisnextY = this.getY() - Math.sin(heading)*radius + Math.sin(nextheading)*radius;
 			theta = Math.toDegrees(Math.atan2(p.getX() - thisnextX, p.getY() - thisnextY));
 			
-			out.println("nextX:" + p.getX() + ", nextY:" + p.getY());
-			out.println("theta:" + theta);
+			//out.println("nextX:" + p.getX() + ", nextY:" + p.getY());//test
+			//out.println("theta:" + theta);//test
 			/**/
 		}
 	}
@@ -146,8 +188,13 @@ public class Droid11 extends TeamRobot implements Droid{
 	public void onHitRobot(HitRobotEvent e) {
 		if(leaderAlive) {
 			/*temporary*/
-			go *= -1;
+			//go *= -1;
 			/**/
+			
+			// If we're moving the other robot, reverse!
+			if (e.isMyFault()) {
+				reverseDirection();
+			}
 			return;
 		}
 		
@@ -162,9 +209,9 @@ public class Droid11 extends TeamRobot implements Droid{
 		}
 	}
 	
-	/*temporary*/
 	public void onHitWall(HitWallEvent e) {
 		if(leaderAlive) {
+			/*
 			double firstRotate = Math.toDegrees(Math.atan2(this.getBattleFieldWidth()/2 - this.getX(), this.getBattleFieldHeight()/2 - this.getY()));
 			double toCenter = firstRotate - this.getHeading();
 			if(toCenter > 180) {
@@ -174,6 +221,8 @@ public class Droid11 extends TeamRobot implements Droid{
 			}
 			this.turnRight(toCenter);
 			this.ahead(250);
+			*/
+			reverseDirection();
 		}else {
 			if(Math.abs(e.getBearing()) < 90) {
 				back(100);
@@ -182,5 +231,95 @@ public class Droid11 extends TeamRobot implements Droid{
 			}
 		}
 	}
-	/**/
+	
+	public void reverseDirection() {
+		if (movingforward) {
+			setBack(40000);
+			movingforward = false;
+		} else {
+			setAhead(40000);
+			movingforward = true;
+		}
+	}
+
+	public double getleaderbearing(LeaderInfo leaderinfo) {
+		if(leaderinfo != null && leaderinfo.isalive) {
+			double bearing = 90 - Math.toDegrees(Math.atan2(leaderinfo.getY()-getY(),leaderinfo.getX()-getX()))- getHeading();
+			return bearing;
+		}
+		return 0;
+	}
+
+	public double getnormaldegreefromheading(double theta) {
+		double degree = 0;;
+		if(theta < 90) {
+			degree = 90 - theta;
+		}else if(theta >=90 && theta < 180) {
+			degree = 360 - (theta - 90);
+		}else if(theta >= 180 && theta < 270) {
+			degree = 270 - (theta- 180);
+		}else if(theta >= 270 && theta < 360) {
+			degree = 180 -(theta - 270);
+		}
+		return degree;
+	}
+	
+	void goTo(double x, double y) {
+		double dist = 20;
+		double angle = Math.toDegrees(absbearing(getX(), getY(), x, y));
+		double r = turnTo(angle);
+		setAhead(dist * r);
+	}
+
+	int turnTo(double angle) {
+		double ang;
+		int dir;
+		ang = normaliseBearing(getHeading() - angle);
+		if (ang > 90) {
+			ang -= 180;
+			dir = -1;
+		} else if (ang < -90) {
+			ang += 180;
+			dir = -1;
+		} else {
+			dir = 1;
+		}
+		setTurnLeft(ang);
+		return dir;
+	}
+
+	double normaliseBearing(double ang) {
+		if (ang > PI)
+			ang -= 2 * PI;
+		if (ang < -PI)
+			ang += 2 * PI;
+		return ang;
+	}
+
+
+	public double absbearing(double x1, double y1, double x2, double y2) {
+		double xo = x2 - x1;
+		double yo = y2 - y1;
+		double h = getRange(x1, y1, x2, y2);
+		if (xo > 0 && yo > 0) {
+			return Math.asin(xo / h);
+		}
+		if (xo > 0 && yo < 0) {
+			return Math.PI - Math.asin(xo / h);
+		}
+		if (xo < 0 && yo < 0) {
+			return Math.PI + Math.asin(-xo / h);
+		}
+		if (xo < 0 && yo > 0) {
+			return 2.0 * Math.PI - Math.asin(-xo / h);
+		}
+		return 0;
+	}
+
+	public double getRange(double x1, double y1, double x2, double y2) {
+		double xo = x2 - x1;
+		double yo = y2 - y1;
+		double h = Math.sqrt(xo * xo + yo * yo);
+		return h;
+	}
 }
