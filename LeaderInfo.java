@@ -1,4 +1,4 @@
-package group11;
+package testTeam;
 
 import java.io.Serializable;
 import robocode.*;
