@@ -1,10 +1,10 @@
-package group11;
+package testTeam;
 
 import java.awt.geom.Point2D;
 
 import robocode.*;
 
-public class G11_Sub1 extends TeamRobot implements Droid{
+public class Droid11 extends TeamRobot implements Droid{
 	boolean leaderAlive = true;
 	
 	/*for Walls*/
@@ -133,7 +133,7 @@ public class G11_Sub1 extends TeamRobot implements Droid{
 	}
 	
 	public void onRobotDeath(RobotDeathEvent e) {
-		if(e.getName().equals("group11.G11_Leader*")) {//when leader died
+		if(e.getName().equals("testTeam.Leader11*")) {//when leader died
 			leaderAlive = false;
 		}else {//test
 			firepower = 0;//test
