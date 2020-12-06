@@ -56,9 +56,9 @@ public class Droid11 extends TeamRobot implements Droid {
 			leaderinfo = (LeaderInfo) e.getMessage();
 			out.println(getleaderbearing(leaderinfo));
 			if (movingforward) {
-				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)));
+				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+80));
 			} else {
-				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)));
+				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+100));
 			}
 		}
 	}
@@ -86,7 +86,7 @@ public class Droid11 extends TeamRobot implements Droid {
 
 	public double getleaderbearing(LeaderInfo leaderinfo) {
 		if(leaderinfo != null & leaderinfo.isalive) {
-			double bearing = Math.toDegrees(Math.atan(getnormaldegreefromheading(getHeading())) - Math.atan2(leaderinfo.getY()-getY(),leaderinfo.getX()-getX()));
+			double bearing = 90 - Math.toDegrees(Math.atan2(leaderinfo.getY()-getY(),leaderinfo.getX()-getX()))- getHeading();
 			return bearing;
 		}
 		return 0;
