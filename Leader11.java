@@ -19,7 +19,7 @@ public class Leader11 extends TeamRobot {
 	int teamMateCount = 2;//the number of living teammates
 	
 	// for antiGravMove
-	Hashtable targets;
+	Hashtable<String, Enemy> targets;
 	Enemy target;
 	final double PI = Math.PI;
 	int direction = 1;
@@ -35,19 +35,19 @@ public class Leader11 extends TeamRobot {
 	
 	public void run() {
 		// use hashtable
-		targets = new Hashtable();
+		targets = new Hashtable<String, Enemy>();
 
 		// use Enemy class
 		target = new Enemy();
 		target.distance = 100000;
-		setAdjustGunForRobotTurn(true);
-		setAdjustRadarForGunTurn(true);
-		turnRadarRightRadians(2 * PI);
+		//setAdjustGunForRobotTurn(true);
+		//setAdjustRadarForGunTurn(true);
+		//turnRadarRightRadians(2 * PI);
 
 		//set color
 		setColors();
 
-		doScanner();
+		//doScanner();
 		
 		//information of leader
 		LeaderInfo leaderInfo = new LeaderInfo(this);
@@ -59,12 +59,12 @@ public class Leader11 extends TeamRobot {
 				haveTarget=true;
 			}
 			*/
-			antiGravMove();
+			antiGravMove();//antiGravMove(this);
 			doScanner();
 			doFirePower();
 			doGun();
-			out.println("target is "+ target.name);//test
-			if(teamMateCount==0)fire(firePower);
+			//out.println("target is "+ target.name);//test
+			if(teamMateCount == 0)fire(firePower);
 			execute();
 			
 			//broadcast information of leader
@@ -95,7 +95,7 @@ public class Leader11 extends TeamRobot {
 				
 				/*prediction test*/
 				p = enemyList.get(index).prediction(this, 1);
-				out.println("nextX:" + p.getX() + ", nextY:" + p.getY());
+				//out.println("nextX:" + p.getX() + ", nextY:" + p.getY());
 				/**/
 			}
 			
@@ -156,8 +156,6 @@ public class Leader11 extends TeamRobot {
 	}
 	
 	public void onRobotDeath(RobotDeathEvent e) {
-		Enemy en = (Enemy)targets.get(e.getName());
-		en.live = false;
 		/*if use one attack method , you should use this code.
 		if(e.getName()==target.name) {
 			haveTarget=false;
@@ -166,9 +164,17 @@ public class Leader11 extends TeamRobot {
 		
 		if(e.getName().equals("testTeam.Droid11* (2)") 
 				|| e.getName().equals("testTeam.Droid11* (3)")) {//case:teammate
-			teamMateCount--;
+			teamMateCount -= 1;
+			if(teamMateCount == 0) {
+				setAdjustGunForRobotTurn(true);
+				setAdjustRadarForGunTurn(true);
+			}
+			//out.println("teamMateCount:" + teamMateCount);//test
 			
 		}else {//case:enemy
+			Enemy en = (Enemy)targets.get(e.getName());
+			en.live = false;
+			
 			int index = enemyName.indexOf(e.getName());
 			if(-1 == index) {//leader hasn't found the robot yet
 				//do no action
@@ -196,17 +202,22 @@ public class Leader11 extends TeamRobot {
 	}
 	
 	public void doScanner() {
-		//swing head for search
-		if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
-			this.setTurnRadarRight(45);
-			this.setTurnGunRight(20);
-			this.execute();
-		}else if(3 <= frame && frame <= 8) {
-			this.setTurnRadarLeft(45);
-			this.setTurnGunLeft(20);
-			this.execute();
+		if(teamMateCount != 0){
+			//swing head for search
+			if((0 <= frame && frame <= 2) || (9 <= frame && frame <= 11)) {
+				this.setTurnRadarRight(45);
+				this.setTurnGunRight(20);
+				this.execute();
+			}else if(3 <= frame && frame <= 8) {
+				this.setTurnRadarLeft(45);
+				this.setTurnGunLeft(20);
+				this.execute();
+			}
+			frame = (frame + 1) % 12;
+		}else {
+			this.setTurnRadarRight(360);
 		}
-		frame = (frame + 1) % 12;
+		
 	}
 	
 	/*
@@ -235,7 +246,7 @@ public class Leader11 extends TeamRobot {
 		//Random rand = new Random();
 		GravPoint p;
 		Enemy en;
-		Enumeration e = targets.elements();
+		Enumeration<Enemy> e = targets.elements();
 		while (e.hasMoreElements()) {
 			en = (Enemy) e.nextElement();
 			if (en.live) {
