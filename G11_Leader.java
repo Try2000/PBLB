@@ -39,7 +39,8 @@ public class G11_Leader extends TeamRobot {
 		//setAdjustGunForRobotTurn(true);
 	//setAdjustRadarForGunTurn(true);
 		//turnRadarRightRadians(2 * PI);
-
+		target = new EnemyInfo();
+		target.distance = 10000;
 		//set color
 		setColors();
 
@@ -93,7 +94,8 @@ public class G11_Leader extends TeamRobot {
 				p = targets.get(e.getName()).prediction(this, 1);
 				en = (EnemyInfo) targets.get(e.getName());
 			}else {
-				en = new EnemyInfo(e,this);
+				en = new EnemyInfo();
+				en.update(e,this);
 				targets.put(e.getName(),en);
 			}
 			double absbearing_rad = (getHeadingRadians() + e.getBearingRadians()) % (2 * PI);
