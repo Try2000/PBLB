@@ -17,6 +17,11 @@ public class TeamInfo implements java.io.Serializable
 		x = robo.getX() + e.getDistance() * Math.sin(Math.toRadians(directionToEnemy));
 		y = robo.getY() + e.getDistance() * Math.cos(Math.toRadians(directionToEnemy));
 	}
+	
+	private void setxy(double _x,double _y){
+		x = _x;
+		y = _y;
+	}
 	public double getX() {
 		return x;
 	}

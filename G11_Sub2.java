@@ -9,7 +9,7 @@ import java.awt.geom.*;
 import java.util.*;
 import java.util.Hashtable;
 
-public class G11_Sub1 extends TeamRobot implements Droid{
+public class G11_Sub2 extends TeamRobot implements Droid{
 	boolean leaderAlive = true;
 	
 	/*for Walls*/
@@ -26,7 +26,7 @@ public class G11_Sub1 extends TeamRobot implements Droid{
 	public double distancetoleader;
 	public boolean inWall, movingforward;
 	private LeaderInfo leaderinfo;
-	private float near = 100;
+	private float near = 20f;
 	private ArrayList<TeamInfo> team;
 	//private EnemyInfo enemyinfo;
 	final double PI = Math.PI;
@@ -140,19 +140,11 @@ public class G11_Sub1 extends TeamRobot implements Droid{
 		team.forEach(teaminfo ->{
 			double distancex = teaminfo.getX() - getX();
 			double distancey = teaminfo.getY() - getY();
-			if(Math.abs(distancex) <= near && Math.abs(distancey) <= near){
-				reverseDirection();
+			if(distancex <= near && distancey <= near){
 				stop(true);
+				reverseDirection();
 			}
 		});
-	}
-	private void nearLeader(){
-		double distancex = leaderinfo.getX() - getX();
-		double distancey = leaderinfo.getY() - getY();
-		if(Math.abs(distancex) <= near && Math.abs(distancey) <= near){
-			stop(true);
-			reverseDirection();
-		}
 	}
 
 	public void onMessageReceived(MessageEvent e) {
@@ -172,12 +164,11 @@ public class G11_Sub1 extends TeamRobot implements Droid{
 			leaderinfo = (LeaderInfo) e.getMessage();
 			//out.println(getleaderbearing(leaderinfo));//test
 			if (movingforward) {
-				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+80));
-			} else {
 				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+100));
+			} else {
+				setTurnRight(normalRelativeAngleDegrees(getleaderbearing(leaderinfo)+120));
 			}
 			nearTeam();
-			nearLeader();
 		}else if(e.getMessage() instanceof EnemyInfo) {
 			EnemyInfo enemy = (EnemyInfo) e.getMessage();
 			/*prediction test*/

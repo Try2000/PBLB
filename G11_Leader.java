@@ -35,7 +35,7 @@ public class G11_Leader extends TeamRobot {
 	public void run() {
 		// use hashtable
 		targets = new Hashtable<String, EnemyInfo>();
-
+		team = new Hashtable<String, TeamInfo>();
 		//setAdjustGunForRobotTurn(true);
 	//setAdjustRadarForGunTurn(true);
 		//turnRadarRightRadians(2 * PI);
@@ -47,7 +47,7 @@ public class G11_Leader extends TeamRobot {
 		//doScanner();
 		
 		//information of leader
-		LeaderInfo leaderInfo = new LeaderInfo(this);
+		LeaderInfo leaderInfo = new LeaderInfo(this,team);
 
 		while(true) {
 			/*
@@ -65,7 +65,7 @@ public class G11_Leader extends TeamRobot {
 			execute();
 			
 			//broadcast information of leader
-			leaderInfo.update(this);
+			leaderInfo.update(this,team);
 			try {
 				broadcastMessage(leaderInfo);
 			}catch(IOException ignored) {

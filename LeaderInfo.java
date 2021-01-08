@@ -2,24 +2,26 @@ package group11;
 
 import java.io.Serializable;
 import robocode.*;
-
+import java.awt.geom.*;
+import java.util.*;
 public class LeaderInfo implements Serializable {
 	private static final long serialVersionUID = 5163422492696388736L;
 	
-	public LeaderInfo(TeamRobot leader11) {
-		set(leader11);
-	}
 	
+	private Hashtable<String,TeamInfo> team;
 	private double x;
 	private double y;
 	
 	/*nakata*/
 	public boolean isalive = true;
 	/**/
-	
-	private void set(TeamRobot leader11) {
+	public LeaderInfo(TeamRobot leader11,Hashtable<String,TeamInfo> _team) {
+		set(leader11,_team);
+	}
+	private void set(TeamRobot leader11,Hashtable<String,TeamInfo> _team) {
 		x = leader11.getX();
 		y = leader11.getY();
+		team = _team;
 	}
 	
 	public double getX() {
@@ -29,7 +31,12 @@ public class LeaderInfo implements Serializable {
 		return y;
 	}
 	
-	public void update(TeamRobot leader11) {
-		set(leader11);
+	public Hashtable<String,TeamInfo> getteam(){
+		return team;
+	}
+	
+	public void update(TeamRobot leader11,Hashtable<String,TeamInfo> _team) {
+		set(leader11,_team);
+		team = _team;
 	}
 }
